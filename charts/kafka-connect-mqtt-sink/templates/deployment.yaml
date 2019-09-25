@@ -3,9 +3,9 @@ kind: StatefulSet
 metadata:
   name: {{ include "fullname" . }}
   labels:
-    app: {{ include "fullname" . }}
+    app: {{ include "fullname" . | quote }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
+    release: {{ .Release.Name | quote }}
     heritage: "{{ .Release.Service }}"
     lenses.io/app: {{ include "fullname" . }}    
     lenses.io/app.type: lenses-connector
@@ -17,7 +17,8 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ include "fullname" . }}
+        app: {{ include "fullname" . | quote }}
+        release: {{ .Release.Name | quote }}
         hostPort: {{ .Values.restPort | quote }}
         containerPort: {{ .Values.restPort | quote }}
         lenses.io/app: {{ include "fullname" . }}
@@ -249,7 +250,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ include "fullname" . }}
-              key:  "password"
+              key:  "connect.mqtt.password"
         - name: CONNECTOR_CONNECT_MQTT_HOSTS
           value: {{ .Values.hosts | quote }} 
         - name: CONNECTOR_CONNECT_MQTT_CLIENT_ID
@@ -262,6 +263,8 @@ spec:
           value: {{ .Values.pollingTimeout | quote }}
         - name: CONNECTOR_CONNECT_MQTT_SERVICE_QUALITY
           value: {{ .Values.serviceQuality | quote }}
+        - name: CONNECTOR_CONNECT_MQTT_RETAINED_MESSAGES
+          value: {{ .Values.retainedMessages | quote }}
         - name: CONNECTOR_CONNECT_MQTT_KEEP_ALIVE
           value: {{ .Values.keepAlive | quote }}
         - name: CONNECTOR_CONNECT_MQTT_RETRY_INTERVAL
